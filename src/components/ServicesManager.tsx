@@ -2,13 +2,13 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Plus } from "lucide-react";
+import { format } from "date-fns";
 
 type Role = { id: string; name: string };
 type Service = {
   id: string;
   name: string;
-  date: string;
-  time: string;
+  datetime: string;
   active: boolean;
   roles: { role: Role }[];
 };
@@ -57,13 +57,12 @@ export function ServicesManager() {
   }
 
   async function toggle(service: Service) {
-    const dateTime = new Date(`${service.date}T${service.time}`);
     await fetch(`/api/services/${service.id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name: service.name,
-        dateTime: dateTime,
+        datetime: service.datetime,
         active: !service.active,
         dayOfWeek: 0,
         roleIds: service.roles.map((role) => role.role.id),
@@ -121,7 +120,7 @@ export function ServicesManager() {
               <div>
                 <h2 className="font-serif text-2xl">{service.name}</h2>
                 <p className="font-mono text-sm text-neutral-500">
-                  {service.date} · {service.time}
+                  {format(service.datetime, "dd MMM yyyy HH:mm")}
                 </p>
               </div>
               <button
