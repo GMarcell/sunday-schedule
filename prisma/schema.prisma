@@ -18,12 +18,12 @@ model Role {
 }
 
 model Member {
-  id          String        @id @default(uuid())
+  id          String       @id @default(uuid())
   name        String
-  active      Boolean       @default(true)
+  active      Boolean      @default(true)
   roles       MemberRole[]
   assignments Assignment[]
-  createdAt   DateTime      @default(now())
+  createdAt   DateTime     @default(now())
 }
 
 model MemberRole {
@@ -36,15 +36,13 @@ model MemberRole {
 }
 
 model ServiceTemplate {
-  id         String            @id @default(uuid())
-  name       String
-  time       String
-  recurrence String
-  dayOfWeek  Int?
-  active     Boolean           @default(true)
-  roles      ServiceRole[]
-  instances  ServiceInstance[]
-  createdAt  DateTime          @default(now())
+  id        String            @id @default(uuid())
+  name      String
+  datetime  DateTime
+  active    Boolean           @default(true)
+  roles     ServiceRole[]
+  instances ServiceInstance[]
+  createdAt DateTime          @default(now())
 }
 
 model ServiceRole {

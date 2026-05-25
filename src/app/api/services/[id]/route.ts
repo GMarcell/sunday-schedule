@@ -5,13 +5,15 @@ import { z } from "zod";
 const serviceSchema = z.object({
   name: z.string().trim().min(1),
   time: z.string().regex(/^\d{2}:\d{2}$/),
-  recurrence: z.enum(["weekly", "biweekly", "monthly", "once"]),
-  dayOfWeek: z.number().int().min(0).max(6).nullable(),
+  date: z.date(),
   active: z.boolean(),
-  roleIds: z.array(z.string()).min(1)
+  roleIds: z.array(z.string()).min(1),
 });
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  request: Request,
+  { params }: { params: { id: string } },
+) {
   try {
     const data = serviceSchema.parse(await request.json());
     const service = await prisma.$transaction(async (tx) => {
@@ -21,12 +23,11 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         data: {
           name: data.name,
           time: data.time,
-          recurrence: data.recurrence,
-          dayOfWeek: data.dayOfWeek,
+          date: data.date.toDateString(),
           active: data.active,
-          roles: { create: data.roleIds.map((roleId) => ({ roleId })) }
+          roles: { create: data.roleIds.map((roleId) => ({ roleId })) },
         },
-        include: { roles: { include: { role: true } } }
+        include: { roles: { include: { role: true } } },
       });
     });
     return ok(service);
@@ -35,7 +36,10 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(
+  _: Request,
+  { params }: { params: { id: string } },
+) {
   try {
     await prisma.serviceTemplate.delete({ where: { id: params.id } });
     return ok({ ok: true });

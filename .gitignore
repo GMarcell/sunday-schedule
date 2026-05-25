@@ -2,3 +2,4 @@
 /.codex
 /.env
 node_modules
+.next
