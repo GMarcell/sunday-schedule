@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Role {
+  id          String        @id @default(uuid())
+  name        String        @unique
+  deletedAt   DateTime?
+  members     MemberRole[]
+  services    ServiceRole[]
+  assignments Assignment[]
+  createdAt   DateTime      @default(now())
+}
+
+model Member {
+  id          String        @id @default(uuid())
+  name        String
+  active      Boolean       @default(true)
+  roles       MemberRole[]
+  assignments Assignment[]
+  createdAt   DateTime      @default(now())
+}
+
+model MemberRole {
+  memberId String
+  roleId   String
+  member   Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  role     Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([memberId, roleId])
+}
+
+model ServiceTemplate {
+  id         String            @id @default(uuid())
+  name       String
+  time       String
+  recurrence String
+  dayOfWeek  Int?
+  active     Boolean           @default(true)
+  roles      ServiceRole[]
+  instances  ServiceInstance[]
+  createdAt  DateTime          @default(now())
+}
+
+model ServiceRole {
+  serviceId String
+  roleId    String
+  service   ServiceTemplate @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  role      Role            @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([serviceId, roleId])
+}
+
+model ServiceInstance {
+  id          String          @id @default(uuid())
+  date        DateTime
+  serviceId   String
+  published   Boolean         @default(false)
+  service     ServiceTemplate @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  assignments Assignment[]
+  createdAt   DateTime        @default(now())
+
+  @@unique([date, serviceId])
+}
+
+model Assignment {
+  id         String          @id @default(uuid())
+  instanceId String
+  roleId     String
+  memberId   String?
+  overridden Boolean         @default(false)
+  instance   ServiceInstance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  role       Role            @relation(fields: [roleId], references: [id])
+  member     Member?         @relation(fields: [memberId], references: [id])
+  createdAt  DateTime        @default(now())
+
+  @@unique([instanceId, roleId])
+}
