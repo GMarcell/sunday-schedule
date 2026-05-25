@@ -5,6 +5,7 @@ import { Plus } from "lucide-react";
 import { format } from "date-fns";
 
 type Role = { id: string; name: string };
+
 type Service = {
   id: string;
   name: string;
@@ -16,17 +17,18 @@ type Service = {
 export function ServicesManager() {
   const [roles, setRoles] = useState<Role[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+
   const [form, setForm] = useState({
     name: "",
     time: "09:00",
-    date: new Date().toDateString(),
+    date: new Date().toISOString().slice(0, 10),
     roleIds: [] as string[],
   });
 
   const load = () =>
     Promise.all([
-      fetch("/api/roles").then((response) => response.json()),
-      fetch("/api/services").then((response) => response.json()),
+      fetch("/api/roles").then((r) => r.json()),
+      fetch("/api/services").then((r) => r.json()),
     ]).then(([roleData, serviceData]) => {
       setRoles(roleData);
       setServices(serviceData);
@@ -36,105 +38,152 @@ export function ServicesManager() {
 
   async function create(event: FormEvent) {
     event.preventDefault();
+
     const { date, time, ...rest } = form;
+
     const payload = {
       name: rest.name,
       roleIds: rest.roleIds,
       datetime: new Date(`${date}T${time}`),
     };
+
     await fetch("/api/services", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...payload, active: true }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        ...payload,
+        active: true,
+      }),
     });
+
     setForm({
       name: "",
       time: "09:00",
-      date: new Date().toString(),
+      date: new Date().toISOString().slice(0, 10),
       roleIds: [],
     });
+
     load();
   }
 
   async function toggle(service: Service) {
     await fetch(`/api/services/${service.id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name: service.name,
         datetime: service.datetime,
         active: !service.active,
-        dayOfWeek: 0,
-        roleIds: service.roles.map((role) => role.role.id),
+        roleIds: service.roles.map((r) => r.role.id),
       }),
     });
+
     load();
   }
 
   return (
     <div className="space-y-6">
+      {/* Create */}
       <form
         onSubmit={create}
-        className="grid gap-4 rounded-md border border-line bg-white p-5 lg:grid-cols-[1fr_120px_140px_2fr_auto]"
+        className="grid gap-4 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-xl lg:grid-cols-[1fr_120px_160px_2fr_auto]"
       >
         <input
           value={form.name}
-          onChange={(event) => setForm({ ...form, name: event.target.value })}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              name: e.target.value,
+            })
+          }
           placeholder="Service name"
-          className="rounded-md border border-line px-3 py-2"
           required
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder:text-slate-500 outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
         />
+
         <input
           type="time"
           value={form.time}
-          onChange={(event) => setForm({ ...form, time: event.target.value })}
-          className="rounded-md border border-line px-3 py-2"
+          onChange={(e) =>
+            setForm({
+              ...form,
+              time: e.target.value,
+            })
+          }
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
         />
+
         <input
           type="date"
-          value={form.date.toString()}
-          onChange={(event) =>
-            setForm({ ...form, date: event.target.value.toString() })
+          value={form.date}
+          onChange={(e) =>
+            setForm({
+              ...form,
+              date: e.target.value,
+            })
           }
-          className="rounded-md border border-line px-3 py-2"
+          className="rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
         />
+
         <RolePicker
           roles={roles}
           value={form.roleIds}
-          onChange={(roleIds) => setForm({ ...form, roleIds })}
+          onChange={(roleIds) =>
+            setForm({
+              ...form,
+              roleIds,
+            })
+          }
         />
+
         <button
-          className="focus-ring inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-2 text-sm text-paper"
           type="submit"
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-medium text-white shadow-lg transition hover:bg-blue-500 hover:shadow-blue-500/30 active:scale-[0.98]"
         >
-          <Plus size={16} /> Add
+          <Plus size={16} />
+          Add
         </button>
       </form>
-      <div className="grid gap-4 md:grid-cols-2">
+
+      {/* Services */}
+      <div className="grid gap-5 md:grid-cols-2">
         {services.map((service) => (
           <article
             key={service.id}
-            className="rounded-md border border-line bg-white p-5"
+            className="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-xl transition hover:border-blue-400/20 hover:-translate-y-1"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h2 className="font-serif text-2xl">{service.name}</h2>
-                <p className="font-mono text-sm text-neutral-500">
-                  {format(service.datetime, "dd MMM yyyy HH:mm")}
+                <h2 className="text-2xl font-bold text-white">
+                  {service.name}
+                </h2>
+
+                <p className="mt-1 text-sm text-slate-400">
+                  {format(new Date(service.datetime), "dd MMM yyyy HH:mm")}
                 </p>
               </div>
+
               <button
                 onClick={() => toggle(service)}
-                className={`rounded-md px-3 py-2 text-sm ${service.active ? "bg-emerald-50 text-emerald-700" : "bg-neutral-100 text-neutral-500"}`}
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                  service.active
+                    ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                    : "bg-white/5 text-slate-400 hover:bg-white/10"
+                }`}
               >
                 {service.active ? "Active" : "Inactive"}
               </button>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
+
+            <div className="mt-5 flex flex-wrap gap-2">
               {service.roles.map(({ role }) => (
                 <span
                   key={role.id}
-                  className="rounded-md bg-ink px-3 py-1 text-sm text-paper"
+                  className="rounded-xl border border-blue-400/20 bg-blue-500/15 px-3 py-2 text-sm text-blue-100"
                 >
                   {role.name}
                 </span>
@@ -160,10 +209,15 @@ function RolePicker({
     <div className="flex flex-wrap gap-2">
       {roles.map((role) => {
         const checked = value.includes(role.id);
+
         return (
           <label
             key={role.id}
-            className={`cursor-pointer rounded-md border px-3 py-2 text-sm ${checked ? "border-ink bg-ink text-paper" : "border-line bg-white"}`}
+            className={`cursor-pointer rounded-xl border px-3 py-2 text-sm transition ${
+              checked
+                ? "border-blue-400/40 bg-blue-500/20 text-blue-100"
+                : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
+            }`}
           >
             <input
               type="checkbox"

@@ -4,25 +4,39 @@ import { Download, Megaphone, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { formatDate } from "@/lib/dates";
 
-type Member = { id: string; name: string; active: boolean };
+type Member = {
+  id: string;
+  name: string;
+  active: boolean;
+};
+
 type Instance = {
   id: string;
   date: string;
   published: boolean;
-  service: { name: string; time: string };
-  assignments: { id: string; role: { name: string }; member: Member | null }[];
+  service: {
+    name: string;
+    time: string;
+  };
+  assignments: {
+    id: string;
+    role: { name: string };
+    member: Member | null;
+  }[];
 };
 
 export function RosterManager() {
   const [week, setWeek] = useState(new Date().toISOString().slice(0, 10));
+
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
+
   const [instances, setInstances] = useState<Instance[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
 
   const load = useCallback(() => {
     Promise.all([
-      fetch(`/api/schedules/roster?week=${week}`).then((response) => response.json()),
-      fetch("/api/members").then((response) => response.json())
+      fetch(`/api/schedules/roster?week=${week}`).then((r) => r.json()),
+      fetch("/api/members").then((r) => r.json()),
     ]).then(([rosterData, memberData]) => {
       setInstances(rosterData);
       setMembers(memberData);
@@ -34,65 +48,138 @@ export function RosterManager() {
   async function saveAssignment(id: string, memberId: string) {
     await fetch(`/api/assignments/${id}`, {
       method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ memberId: memberId || null })
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        memberId: memberId || null,
+      }),
     });
+
     load();
   }
 
   async function publish(id: string) {
-    await fetch(`/api/schedules/publish/${id}`, { method: "POST" });
+    await fetch(`/api/schedules/publish/${id}`, {
+      method: "POST",
+    });
+
     load();
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-end gap-3 rounded-md border border-line bg-white p-4">
+    <div className="space-y-6">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-end gap-4 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-5 shadow-xl">
         <label>
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-neutral-500">Week starts</span>
-          <input type="date" value={week} onChange={(event) => setWeek(event.target.value)} className="mt-2 block rounded-md border border-line px-3 py-2" />
+          <span className="text-xs uppercase tracking-[0.14em] text-slate-300">
+            Week starts
+          </span>
+
+          <input
+            type="date"
+            value={week}
+            onChange={(e) => setWeek(e.target.value)}
+            className="mt-2 block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+          />
         </label>
+
         <label>
-          <span className="font-mono text-xs uppercase tracking-[0.14em] text-neutral-500">Export month</span>
-          <input type="month" value={month} onChange={(event) => setMonth(event.target.value)} className="mt-2 block rounded-md border border-line px-3 py-2" />
+          <span className="text-xs uppercase tracking-[0.14em] text-slate-300">
+            Export month
+          </span>
+
+          <input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="mt-2 block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+          />
         </label>
-        {["csv", "xlsx", "pdf"].map((format) => (
-          <a key={format} href={`/api/export/monthly?month=${month}&format=${format}`} className="focus-ring inline-flex items-center gap-2 rounded-md border border-line px-3 py-2 text-sm uppercase">
-            <Download size={15} /> {format}
-          </a>
-        ))}
+
+        <div className="flex flex-wrap gap-2">
+          {["csv", "xlsx", "pdf"].map((format) => (
+            <a
+              key={format}
+              href={`/api/export/monthly?month=${month}&format=${format}`}
+              className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-sm uppercase text-slate-300 transition hover:bg-white/10 hover:text-white"
+            >
+              <Download size={15} />
+              {format}
+            </a>
+          ))}
+        </div>
       </div>
-      <div className="grid gap-4">
+
+      {/* Instances */}
+      <div className="grid gap-5">
         {instances.map((instance) => (
-          <article key={instance.id} className="rounded-md border border-line bg-white p-5">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+          <article
+            key={instance.id}
+            className="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-xl transition hover:border-blue-400/20"
+          >
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <p className="font-mono text-xs uppercase tracking-[0.14em] text-blue">{formatDate(new Date(instance.date))}</p>
-                <h2 className="mt-1 font-serif text-2xl">{instance.service.name}</h2>
-                <p className="font-mono text-sm text-neutral-500">{instance.service.time}</p>
+                <p className="text-xs uppercase tracking-[0.14em] text-blue-300">
+                  {formatDate(new Date(instance.date))}
+                </p>
+
+                <h2 className="mt-2 text-2xl font-bold text-white">
+                  {instance.service.name}
+                </h2>
+
+                <p className="text-sm text-slate-400">
+                  {instance.service.time}
+                </p>
               </div>
-              <button onClick={() => publish(instance.id)} className="focus-ring inline-flex items-center gap-2 rounded-md bg-rust px-3 py-2 text-sm text-white">
-                <Megaphone size={16} /> {instance.published ? "Published" : "Publish"}
+
+              <button
+                onClick={() => publish(instance.id)}
+                className={`inline-flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition ${
+                  instance.published
+                    ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                    : "bg-blue-600 text-white hover:bg-blue-500 hover:shadow-blue-500/30"
+                }`}
+              >
+                <Megaphone size={16} />
+
+                {instance.published ? "Published" : "Publish"}
               </button>
             </div>
-            <div className="mt-5 grid gap-3 md:grid-cols-2">
+
+            {/* Assignments */}
+            <div className="mt-6 grid gap-4 md:grid-cols-2">
               {instance.assignments.map((assignment) => (
-                <label key={assignment.id} className="rounded-md border border-line p-3">
-                  <span className="font-mono text-xs uppercase tracking-[0.14em] text-neutral-500">{assignment.role.name}</span>
-                  <div className="mt-2 flex gap-2">
+                <label
+                  key={assignment.id}
+                  className="rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/[0.07]"
+                >
+                  <span className="text-xs uppercase tracking-[0.14em] text-slate-400">
+                    {assignment.role.name}
+                  </span>
+
+                  <div className="mt-3 flex gap-2">
                     <select
                       defaultValue={assignment.member?.id ?? ""}
-                      onChange={(event) => saveAssignment(assignment.id, event.target.value)}
-                      className="min-w-0 flex-1 rounded-md border border-line px-3 py-2"
+                      onChange={(e) =>
+                        saveAssignment(assignment.id, e.target.value)
+                      }
+                      className="min-w-0 flex-1 rounded-xl border border-white/10 bg-slate-900/60 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
                     >
                       <option value="">Unfilled</option>
+
                       {members.map((member) => (
                         <option key={member.id} value={member.id}>
-                          {member.name}{member.active ? "" : " (inactive)"}
+                          {member.name}
+                          {member.active ? "" : " (inactive)"}
                         </option>
                       ))}
                     </select>
-                    <span className="rounded-md bg-ink p-2 text-paper" title="Auto-saves on change">
+
+                    <span
+                      className="rounded-xl border border-white/10 bg-blue-500/15 p-3 text-blue-200"
+                      title="Auto-saves on change"
+                    >
                       <Save size={16} />
                     </span>
                   </div>
