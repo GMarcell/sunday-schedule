@@ -7,7 +7,7 @@ export async function generateSchedule(db: Db, start: Date, end: Date) {
   const templates = await db.serviceTemplate.findMany({
     where: { active: true, roles: { some: {} } },
     include: { roles: { include: { role: true } } },
-    orderBy: [{ time: "asc" }, { name: "asc" }],
+    orderBy: [{ datetime: "asc" }, { name: "asc" }],
   });
 
   const generated = [];
