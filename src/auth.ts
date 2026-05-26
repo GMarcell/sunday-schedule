@@ -59,6 +59,7 @@ const authConfig = NextAuth({
       },
     }),
   ],
+  trustHost: true,
 
   callbacks: {
     async jwt({ token, user }) {
