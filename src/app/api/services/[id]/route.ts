@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { handleError, ok } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 import { z } from "zod";
 
 const serviceSchema = z.object({
@@ -19,7 +20,7 @@ export async function PUT(
   try {
     const session = await auth();
     if (!session?.user?.email) {
-      return { error: "Unauthorized" };
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -27,7 +28,7 @@ export async function PUT(
     });
 
     if (user?.role === "demo") {
-      return { error: "Demo account is read-only." };
+      return NextResponse.json({ error: "Demo account is read-only." });
     }
     const data = serviceSchema.parse(await request.json());
 
@@ -76,7 +77,7 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session?.user?.email) {
-      return { error: "Unauthorized" };
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -84,7 +85,7 @@ export async function DELETE(
     });
 
     if (user?.role === "demo") {
-      return { error: "Demo account is read-only." };
+      return NextResponse.json({ error: "Demo account is read-only." });
     }
     await prisma.serviceTemplate.delete({
       where: {

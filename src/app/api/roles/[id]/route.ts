@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { handleError, ok } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function DELETE(
   _: Request,
@@ -11,7 +12,7 @@ export async function DELETE(
   try {
     const session = await auth();
     if (!session?.user?.email) {
-      return { error: "Unauthorized" };
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -19,7 +20,7 @@ export async function DELETE(
     });
 
     if (user?.role === "demo") {
-      return { error: "Demo account is read-only." };
+      return NextResponse.json({ error: "Demo account is read-only." });
     }
     const usage = await prisma.role.findUnique({
       where: { id: id },

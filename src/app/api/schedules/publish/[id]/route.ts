@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { handleError, ok } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
+import { NextResponse } from "next/server";
 
 export async function POST(
   _: Request,
@@ -10,7 +11,7 @@ export async function POST(
   try {
     const session = await auth();
     if (!session?.user?.email) {
-      return { error: "Unauthorized" };
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({
@@ -18,7 +19,7 @@ export async function POST(
     });
 
     if (user?.role === "demo") {
-      return { error: "Demo account is read-only." };
+      return NextResponse.json({ error: "Demo account is read-only." });
     }
     const instance = await prisma.serviceInstance.update({
       where: { id: id },
