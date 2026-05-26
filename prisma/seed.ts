@@ -95,7 +95,6 @@ async function main() {
       ? await prisma.serviceTemplate.update({
           where: { id: existing.id },
           data: {
-            time: template.time,
             datetime: new Date(),
             active: true,
           },
