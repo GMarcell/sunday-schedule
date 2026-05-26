@@ -3,7 +3,7 @@
 import { Download, Megaphone, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { formatDate } from "@/lib/dates";
-import { Instance, Member } from "@/types";
+import { Instance, Member } from "@/types/types";
 
 export function RosterManager() {
   const [weekStart, setWeekStart] = useState(

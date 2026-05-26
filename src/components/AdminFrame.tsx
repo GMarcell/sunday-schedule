@@ -10,6 +10,7 @@ export async function AdminFrame({
   children: React.ReactNode;
 }) {
   const session = await auth();
+  const isDemo = session?.user.role === "demo";
 
   if (!session) {
     redirect("/login");
@@ -27,6 +28,11 @@ export async function AdminFrame({
             <p className="text-[10px] uppercase tracking-[0.18em] text-blue-300 sm:text-xs">
               Admin Panel
             </p>
+            {isDemo && (
+              <div className="bg-yellow-100 text-yellow-800 text-sm text-center py-2 px-4">
+                You are using a demo account — changes are disabled.
+              </div>
+            )}
 
             <h1 className="mt-2 break-words text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
               {title}

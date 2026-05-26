@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { handleError, ok } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
@@ -19,6 +20,18 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { error: "Unauthorized" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (user?.role === "demo") {
+      return { error: "Demo account is read-only." };
+    }
     const data = serviceSchema.parse(await request.json());
     const service = await prisma.serviceTemplate.create({
       data: {

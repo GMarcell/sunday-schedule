@@ -29,6 +29,19 @@ async function main() {
     },
   });
 
+  const hashedPassword = await bcrypt.hash("demo1234", 10);
+
+  await prisma.user.upsert({
+    where: { email: "demo@example.com" },
+    update: {},
+    create: {
+      name: "Demo User",
+      email: "demo@example.com",
+      password: hashedPassword,
+      role: "demo",
+    },
+  });
+
   const byName = Object.fromEntries(roles.map((role) => [role.name, role]));
   const members = [
     { name: "Kefas", roles: ["OBS", "Sound"] },

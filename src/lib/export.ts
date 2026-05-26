@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { RosterInstance } from "@/types";
+import { RosterInstance } from "@/types/types";
 
 export function rosterRows(instances: RosterInstance[]) {
   return instances.map((instance) => {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { RolePicker } from "./RolePicker";
-import { Role, Service } from "@/types";
+import { Role, Service } from "@/types/types";
 
 export default function ServiceModal({
   service,

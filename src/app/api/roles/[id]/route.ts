@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { handleError, ok } from "@/lib/http";
 import { prisma } from "@/lib/prisma";
 
@@ -8,6 +9,18 @@ export async function DELETE(
   const { id } = await context.params;
 
   try {
+    const session = await auth();
+    if (!session?.user?.email) {
+      return { error: "Unauthorized" };
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { email: session.user.email },
+    });
+
+    if (user?.role === "demo") {
+      return { error: "Demo account is read-only." };
+    }
     const usage = await prisma.role.findUnique({
       where: { id: id },
       include: { members: true, services: true, assignments: true },
