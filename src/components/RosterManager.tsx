@@ -21,14 +21,12 @@ export function RosterManager() {
       fetch(`/api/schedules/roster?start=${weekStart}&end=${weekEnd}`).then(
         (r) => r.json(),
       ),
-      fetch("/api/members").then((r) => r.json()),
+      fetch("/api/members/active").then((r) => r.json()),
     ]).then(([rosterData, memberData]) => {
       setInstances(rosterData);
       setMembers(memberData);
     });
   }, [weekStart, weekEnd]);
-
-  useEffect(() => void load(), [load]);
 
   async function saveAssignment(id: string, memberId: string) {
     await fetch(`/api/assignments/${id}`, {
@@ -51,6 +49,29 @@ export function RosterManager() {
 
     load();
   }
+
+  const groupedMembers = members.reduce<
+    Record<string, { id: string; name: string }[]>
+  >((acc, member) => {
+    member.roles.forEach((memberRole) => {
+      const roleName = memberRole.role.name;
+
+      if (!acc[roleName]) {
+        acc[roleName] = [];
+      }
+
+      acc[roleName].push({
+        id: member.id,
+        name: member.name,
+      });
+    });
+
+    return acc;
+  }, {});
+
+  console.log(groupedMembers.PPT);
+
+  useEffect(() => void load(), [load]);
 
   return (
     <div className="space-y-6">
@@ -166,10 +187,9 @@ export function RosterManager() {
                     >
                       <option value="">Unfilled</option>
 
-                      {members.map((member) => (
+                      {groupedMembers[assignment.role.name].map((member) => (
                         <option key={member.id} value={member.id}>
                           {member.name}
-                          {member.active ? "" : " (inactive)"}
                         </option>
                       ))}
                     </select>
