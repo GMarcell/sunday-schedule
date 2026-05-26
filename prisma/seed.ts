@@ -31,13 +31,29 @@ async function main() {
 
   const byName = Object.fromEntries(roles.map((role) => [role.name, role]));
   const members = [
-    { name: "James", roles: ["SoD", "OBS"] },
-    { name: "Sarah", roles: ["PPT", "OBS"] },
-    { name: "Mike", roles: ["PPT", "Sound"] },
-    { name: "Tom", roles: ["SoD", "OBS"] },
-    { name: "Anna", roles: ["PPT", "Sound", "OBS"] },
-    { name: "David", roles: ["Sound"] },
-    { name: "Lee", roles: ["SoD", "OBS"] },
+    { name: "Kefas", roles: ["OBS", "Sound"] },
+    { name: "Chris", roles: ["Sound"] },
+    { name: "Frency", roles: ["SoD", "OBS"] },
+    { name: "Kirby", roles: ["SoD", "OBS"] },
+    { name: "Clarrisa", roles: ["PPT", "OBS"] },
+    { name: "Juan", roles: ["Sound", "SoD"] },
+    { name: "Natiar", roles: ["OBS", "SoD"] },
+    { name: "Junior", roles: ["OBS", "PPT"] },
+    { name: "Johan", roles: ["Sound", "OBS"] },
+    { name: "Rilly", roles: ["SoD", "OBS"] },
+    { name: "Vierena", roles: ["SoD", "OBS"] },
+    { name: "Nicole", roles: ["PPT", "OBS"] },
+    { name: "Jeremi", roles: ["OBS", "SoD"] },
+    { name: "Yehezkiel", roles: ["PPT", "OBS"] },
+    { name: "Gerald", roles: ["Sound", "OBS"] },
+    { name: "Graciella", roles: ["OBS", "PPT"] },
+    { name: "Moses", roles: ["PPT"] },
+    { name: "Tanto", roles: ["SoD", "Sound"] },
+    { name: "Pascal", roles: ["PPT"] },
+    { name: "Vecky", roles: ["Sound"] },
+    { name: "Grand", roles: ["OBS", "Sound"] },
+    { name: "Juniko", roles: ["OBS"] },
+    { name: "Netta", roles: ["PPT", "OBS"] },
   ];
 
   for (const member of members) {
