@@ -8,23 +8,29 @@ export function AdminFrame({
   children: React.ReactNode;
 }) {
   return (
-    <main className="min-h-screen bg-indigo-950 text-white md:pl-64">
+    <main className="min-h-screen bg-indigo-950 text-white">
+      {/* Sidebar */}
       <AdminNav />
 
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        {/* Header */}
-        <header className="mb-8 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-xl">
-          <p className="text-xs uppercase tracking-[0.18em] text-blue-300">
-            Admin Panel
-          </p>
+      {/* Main Content */}
+      <div className="w-full md:pl-64">
+        <div className="mx-auto w-full max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
+          {/* Header */}
+          <header className="mb-6 rounded-2xl border border-white/10 bg-white/10 p-4 shadow-xl backdrop-blur-xl sm:mb-8 sm:rounded-3xl sm:p-6">
+            <p className="text-[10px] uppercase tracking-[0.18em] text-blue-300 sm:text-xs">
+              Admin Panel
+            </p>
 
-          <h1 className="mt-2 text-4xl font-bold text-white">{title}</h1>
+            <h1 className="mt-2 break-words text-2xl font-bold text-white sm:text-3xl lg:text-4xl">
+              {title}
+            </h1>
 
-          <div className="mt-4 h-px bg-gradient-to-r from-blue-400/40 to-transparent" />
-        </header>
+            <div className="mt-4 h-px bg-gradient-to-r from-blue-400/40 to-transparent" />
+          </header>
 
-        {/* Content */}
-        <div className="space-y-6">{children}</div>
+          {/* Content */}
+          <div className="space-y-4 sm:space-y-6">{children}</div>
+        </div>
       </div>
     </main>
   );
