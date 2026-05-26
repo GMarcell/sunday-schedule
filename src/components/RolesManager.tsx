@@ -1,9 +1,8 @@
 "use client";
 
+import { Role } from "@/types";
 import { Plus, Trash2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
-
-type Role = { id: string; name: string };
 
 export function RolesManager() {
   const [roles, setRoles] = useState<Role[]>([]);

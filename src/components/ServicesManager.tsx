@@ -1,18 +1,11 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Trash } from "lucide-react";
 import { format } from "date-fns";
-
-type Role = { id: string; name: string };
-
-type Service = {
-  id: string;
-  name: string;
-  datetime: string;
-  active: boolean;
-  roles: { role: Role }[];
-};
+import { RolePicker } from "./RolePicker";
+import ServiceModal from "./ServiceModal";
+import { Role, Service } from "@/types";
 
 export function ServicesManager() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -24,6 +17,8 @@ export function ServicesManager() {
     date: new Date().toISOString().slice(0, 10),
     roleIds: [] as string[],
   });
+
+  const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   const load = () =>
     Promise.all([
@@ -80,6 +75,17 @@ export function ServicesManager() {
         active: !service.active,
         roleIds: service.roles.map((r) => r.role.id),
       }),
+    });
+
+    load();
+  }
+
+  async function deleteService(id: string) {
+    await fetch(`/api/services/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
 
     load();
@@ -154,7 +160,8 @@ export function ServicesManager() {
         {services.map((service) => (
           <article
             key={service.id}
-            className="rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-xl transition hover:border-blue-400/20 hover:-translate-y-1"
+            onClick={() => setSelectedService(service)}
+            className="cursor-pointer rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-6 shadow-xl transition hover:border-blue-400/30 hover:-translate-y-1"
           >
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -167,16 +174,21 @@ export function ServicesManager() {
                 </p>
               </div>
 
-              <button
-                onClick={() => toggle(service)}
-                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                  service.active
-                    ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
-                    : "bg-white/5 text-slate-400 hover:bg-white/10"
-                }`}
-              >
-                {service.active ? "Active" : "Inactive"}
-              </button>
+              <div className="flex gap-2 items-center">
+                <button
+                  onClick={() => toggle(service)}
+                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                    service.active
+                      ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                      : "bg-white/5 text-slate-400 hover:bg-white/10"
+                  }`}
+                >
+                  {service.active ? "Active" : "Inactive"}
+                </button>
+                <button onClick={() => deleteService(service.id)}>
+                  <Trash />
+                </button>
+              </div>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">
@@ -192,49 +204,17 @@ export function ServicesManager() {
           </article>
         ))}
       </div>
-    </div>
-  );
-}
-
-function RolePicker({
-  roles,
-  value,
-  onChange,
-}: {
-  roles: Role[];
-  value: string[];
-  onChange: (ids: string[]) => void;
-}) {
-  return (
-    <div className="flex flex-wrap gap-2">
-      {roles.map((role) => {
-        const checked = value.includes(role.id);
-
-        return (
-          <label
-            key={role.id}
-            className={`cursor-pointer rounded-xl border px-3 py-2 text-sm transition ${
-              checked
-                ? "border-blue-400/40 bg-blue-500/20 text-blue-100"
-                : "border-white/10 bg-white/5 text-slate-300 hover:bg-white/10"
-            }`}
-          >
-            <input
-              type="checkbox"
-              className="sr-only"
-              checked={checked}
-              onChange={() =>
-                onChange(
-                  checked
-                    ? value.filter((id) => id !== role.id)
-                    : [...value, role.id],
-                )
-              }
-            />
-            {role.name}
-          </label>
-        );
-      })}
+      {selectedService && (
+        <ServiceModal
+          service={selectedService}
+          roles={roles}
+          onClose={() => setSelectedService(null)}
+          onSaved={() => {
+            setSelectedService(null);
+            load();
+          }}
+        />
+      )}
     </div>
   );
 }

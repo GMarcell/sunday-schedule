@@ -3,27 +3,7 @@
 import { Download, Megaphone, Save } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { formatDate } from "@/lib/dates";
-
-type Member = {
-  id: string;
-  name: string;
-  active: boolean;
-};
-
-type Instance = {
-  id: string;
-  date: string;
-  published: boolean;
-  service: {
-    name: string;
-    time: string;
-  };
-  assignments: {
-    id: string;
-    role: { name: string };
-    member: Member | null;
-  }[];
-};
+import { Instance, Member } from "@/types";
 
 export function RosterManager() {
   const [week, setWeek] = useState(new Date().toISOString().slice(0, 10));

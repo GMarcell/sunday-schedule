@@ -2,14 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Plus, Save } from "lucide-react";
-
-type Role = { id: string; name: string };
-type Member = {
-  id: string;
-  name: string;
-  active: boolean;
-  roles: { role: Role }[];
-};
+import { Member, Role } from "@/types";
 
 export function MembersManager() {
   const [roles, setRoles] = useState<Role[]>([]);
