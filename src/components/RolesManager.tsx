@@ -1,6 +1,6 @@
 "use client";
 
-import { Role } from "@/types/types";
+import { Role } from "@/types";
 import { Plus, Trash2 } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 

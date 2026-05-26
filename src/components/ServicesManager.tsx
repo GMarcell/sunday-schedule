@@ -5,7 +5,7 @@ import { Plus, Trash } from "lucide-react";
 import { format } from "date-fns";
 import { RolePicker } from "./RolePicker";
 import ServiceModal from "./ServiceModal";
-import { Role, Service } from "@/types/types";
+import { Role, Service } from "@/types";
 
 export function ServicesManager() {
   const [roles, setRoles] = useState<Role[]>([]);

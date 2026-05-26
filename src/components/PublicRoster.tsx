@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "@/lib/dates";
-import { Instance } from "@/types/types";
+import { Instance } from "@/types";
 
 export function PublicRoster() {
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM

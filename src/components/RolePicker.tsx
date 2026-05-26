@@ -1,4 +1,4 @@
-import { Role } from "@/types/types";
+import { Role } from "@/types";
 
 export function RolePicker({
   roles,

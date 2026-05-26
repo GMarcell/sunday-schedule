@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useState } from "react";
 import { Plus, Save } from "lucide-react";
-import { Member, Role } from "@/types/types";
+import { Member, Role } from "@/types";
 
 export function MembersManager() {
   const [roles, setRoles] = useState<Role[]>([]);
