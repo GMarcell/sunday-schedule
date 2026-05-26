@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
 import { monthRange } from "@/lib/dates";
 import { toCsv, toPdf, toXlsx } from "@/lib/export";
 import { prisma } from "@/lib/prisma";
@@ -13,9 +15,10 @@ export async function GET(request: Request) {
     const body = await toXlsx(roster);
     return new Response(body, {
       headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="sunday-roster-${range.label}.xlsx"`
-      }
+        "Content-Type":
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        "Content-Disposition": `attachment; filename="sunday-roster-${range.label}.xlsx"`,
+      },
     });
   }
 
@@ -24,15 +27,15 @@ export async function GET(request: Request) {
     return new Response(new Uint8Array(body), {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `attachment; filename="sunday-roster-${range.label}.pdf"`
-      }
+        "Content-Disposition": `attachment; filename="sunday-roster-${range.label}.pdf"`,
+      },
     });
   }
 
   return new Response(toCsv(roster), {
     headers: {
       "Content-Type": "text/csv; charset=utf-8",
-      "Content-Disposition": `attachment; filename="sunday-roster-${range.label}.csv"`
-    }
+      "Content-Disposition": `attachment; filename="sunday-roster-${range.label}.csv"`,
+    },
   });
 }

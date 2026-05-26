@@ -23,7 +23,7 @@ export function AdminDashboard() {
       fetch("/api/members").then((response) => response.json()),
       fetch("/api/services").then((response) => response.json()),
       fetch(
-        `/api/schedules/roster?week=${new Date().toISOString().slice(0, 10)}`,
+        `/api/schedules/roster?start=${new Date().toISOString().slice(0, 10)}&end=${new Date().toISOString().slice(0, 10)}`,
       ).then((response) => response.json()),
     ]).then(([roleData, memberData, serviceData, rosterData]) => {
       setRoles(roleData);

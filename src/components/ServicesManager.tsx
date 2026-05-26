@@ -174,21 +174,16 @@ export function ServicesManager() {
                 </p>
               </div>
 
-              <div className="flex gap-2 items-center">
-                <button
-                  onClick={() => toggle(service)}
-                  className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
-                    service.active
-                      ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
-                      : "bg-white/5 text-slate-400 hover:bg-white/10"
-                  }`}
-                >
-                  {service.active ? "Active" : "Inactive"}
-                </button>
-                <button onClick={() => deleteService(service.id)}>
-                  <Trash />
-                </button>
-              </div>
+              <button
+                onClick={() => toggle(service)}
+                className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+                  service.active
+                    ? "bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25"
+                    : "bg-white/5 text-slate-400 hover:bg-white/10"
+                }`}
+              >
+                {service.active ? "Active" : "Inactive"}
+              </button>
             </div>
 
             <div className="mt-5 flex flex-wrap gap-2">

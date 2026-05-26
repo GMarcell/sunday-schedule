@@ -2,32 +2,41 @@
 
 import { useEffect, useState } from "react";
 import { formatDate } from "@/lib/dates";
-
-type Instance = {
-  id: string;
-  date: string;
-  service: { name: string; time: string };
-  assignments: { role: { name: string }; member: { name: string } | null }[];
-};
-
-function sundayIso() {
-  const now = new Date();
-  const date = new Date(now);
-  date.setDate(now.getDate() + ((7 - now.getDay()) % 7));
-  return date.toISOString().slice(0, 10);
-}
+import { Instance } from "@/types";
 
 export function PublicRoster() {
-  const [date, setDate] = useState(sundayIso());
+  const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)); // YYYY-MM
   const [items, setItems] = useState<Instance[]>([]);
   const [loading, setLoading] = useState(true);
 
+  function getMonthRange(month: string) {
+    const start = new Date(`${month}-01T00:00:00`);
+    const end = new Date(start);
+    end.setMonth(end.getMonth() + 1);
+
+    return { start, end };
+  }
+
   useEffect(() => {
-    fetch(`/api/assignments/public?date=${date}`)
-      .then((response) => response.json())
-      .then(setItems)
-      .finally(() => setLoading(false));
-  }, [date]);
+    const { start, end } = getMonthRange(month);
+
+    async function load() {
+      setLoading(true);
+
+      try {
+        const res = await fetch(
+          `/api/assignments/public?start=${start.toISOString()}&end=${end.toISOString()}`,
+        );
+
+        const data = await res.json();
+        setItems(data);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    load();
+  }, [month]);
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white">
@@ -50,18 +59,18 @@ export function PublicRoster() {
               htmlFor="date"
               className="block text-xs uppercase tracking-[0.14em] text-slate-300 mb-2"
             >
-              Service date
+              Service Month
             </label>
 
             <input
-              id="date"
-              type="date"
-              value={date}
+              id="month"
+              type="month"
+              value={month}
               onChange={(event) => {
                 setLoading(true);
-                setDate(event.target.value);
+                setMonth(event.target.value);
               }}
-              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+              className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white"
             />
           </div>
         </div>

@@ -4,29 +4,44 @@ import { addDays, startOfDay } from "./dates";
 type Db = PrismaClient | Prisma.TransactionClient;
 
 export async function generateSchedule(db: Db, start: Date, end: Date) {
-  const templates = await db.serviceTemplate.findMany({
-    where: { active: true, roles: { some: {} } },
-    include: { roles: { include: { role: true } } },
-    orderBy: [{ datetime: "asc" }, { name: "asc" }],
+  // 1. Get services already scheduled in that range
+  const services = await db.serviceTemplate.findMany({
+    where: {
+      active: true,
+      datetime: {
+        gte: start,
+        lte: end,
+      },
+    },
+    include: {
+      roles: { include: { role: true } },
+    },
+    orderBy: { datetime: "asc" },
   });
 
-  const generated = [];
-  for (
-    let cursor = startOfDay(start);
-    cursor <= end;
-    cursor = addDays(cursor, 1)
-  ) {
-    for (const template of templates) {
-      const instance = await db.serviceInstance.upsert({
-        where: { date_serviceId: { date: cursor, serviceId: template.id } },
-        update: {},
-        create: { date: cursor, serviceId: template.id },
-        include: { assignments: true },
-      });
+  const generated: string[] = [];
 
-      await autoAssignInstance(db, instance.id);
-      generated.push(instance.id);
-    }
+  for (const service of services) {
+    // 2. Create instance ONLY for existing service datetime
+    const instance = await db.serviceInstance.upsert({
+      where: {
+        date_serviceId: {
+          date: service.datetime,
+          serviceId: service.id,
+        },
+      },
+      update: {},
+      create: {
+        date: service.datetime,
+        serviceId: service.id,
+      },
+      include: {
+        assignments: true,
+      },
+    });
+
+    await autoAssignInstance(db, instance.id);
+    generated.push(instance.id);
   }
 
   return generated;
@@ -106,7 +121,7 @@ export async function getRoster(
 ) {
   return db.serviceInstance.findMany({
     where: {
-      date: { gte: start, lt: end },
+      date: { gte: startOfDay(start), lt: startOfDay(addDays(end, 1)) },
       ...(publicOnly ? { published: true } : {}),
     },
     include: {
@@ -116,6 +131,6 @@ export async function getRoster(
         orderBy: { role: { name: "asc" } },
       },
     },
-    orderBy: [{ date: "asc" }, { service: { datetime: "asc" } }],
+    orderBy: [{ date: "asc" }, { service: { name: "asc" } }],
   });
 }

@@ -1,11 +1,9 @@
-console.log("auth.ts loaded");
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-console.log("before NextAuth");
 const authConfig = NextAuth({
   adapter: PrismaAdapter(prisma),
 
@@ -63,7 +61,5 @@ const authConfig = NextAuth({
 
   secret: process.env.AUTH_SECRET,
 });
-
-console.log("after NextAuth", authConfig);
 
 export const { handlers, auth, signIn, signOut } = authConfig;

@@ -6,8 +6,11 @@ import { formatDate } from "@/lib/dates";
 import { Instance, Member } from "@/types";
 
 export function RosterManager() {
-  const [week, setWeek] = useState(new Date().toISOString().slice(0, 10));
+  const [weekStart, setWeekStart] = useState(
+    new Date().toISOString().slice(0, 10),
+  );
 
+  const [weekEnd, setWeekEnd] = useState(new Date().toISOString().slice(0, 10));
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7));
 
   const [instances, setInstances] = useState<Instance[]>([]);
@@ -15,13 +18,15 @@ export function RosterManager() {
 
   const load = useCallback(() => {
     Promise.all([
-      fetch(`/api/schedules/roster?week=${week}`).then((r) => r.json()),
+      fetch(`/api/schedules/roster?start=${weekStart}&end=${weekEnd}`).then(
+        (r) => r.json(),
+      ),
       fetch("/api/members").then((r) => r.json()),
     ]).then(([rosterData, memberData]) => {
       setInstances(rosterData);
       setMembers(memberData);
     });
-  }, [week]);
+  }, [weekStart, weekEnd]);
 
   useEffect(() => void load(), [load]);
 
@@ -53,13 +58,26 @@ export function RosterManager() {
       <div className="flex flex-wrap items-end gap-4 rounded-3xl border border-white/10 bg-white/10 backdrop-blur-xl p-5 shadow-xl">
         <label>
           <span className="text-xs uppercase tracking-[0.14em] text-slate-300">
-            Week starts
+            Week start
           </span>
 
           <input
             type="date"
-            value={week}
-            onChange={(e) => setWeek(e.target.value)}
+            value={weekStart}
+            onChange={(e) => setWeekStart(e.target.value)}
+            className="mt-2 block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
+          />
+        </label>
+
+        <label>
+          <span className="text-xs uppercase tracking-[0.14em] text-slate-300">
+            Week end
+          </span>
+
+          <input
+            type="date"
+            value={weekEnd}
+            onChange={(e) => setWeekEnd(e.target.value)}
             className="mt-2 block rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white outline-none transition focus:border-blue-400 focus:ring-2 focus:ring-blue-400/30"
           />
         </label>
