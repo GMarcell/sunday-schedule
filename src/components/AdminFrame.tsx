@@ -1,12 +1,19 @@
+import { auth } from "@/auth";
 import { AdminNav } from "./AdminNav";
+import { redirect } from "next/navigation";
 
-export function AdminFrame({
+export async function AdminFrame({
   title,
   children,
 }: {
   title: string;
   children: React.ReactNode;
 }) {
+  const session = await auth();
+
+  if (!session) {
+    redirect("/login");
+  }
   return (
     <main className="min-h-screen bg-indigo-950 text-white">
       {/* Sidebar */}

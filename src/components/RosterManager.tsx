@@ -69,8 +69,6 @@ export function RosterManager() {
     return acc;
   }, {});
 
-  console.log(groupedMembers.PPT);
-
   useEffect(() => void load(), [load]);
 
   return (
