@@ -39,7 +39,7 @@ export function PublicRoster() {
   }, [month]);
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-blue-950 text-white">
+    <main className="min-h-screen bg-indigo-950 text-white">
       {/* Hero */}
       <section className="px-4 py-12 sm:px-8">
         <div className="mx-auto max-w-5xl">

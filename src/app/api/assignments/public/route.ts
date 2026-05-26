@@ -16,11 +16,5 @@ export async function GET(request: Request) {
   const start = parseDateParam(startParam);
   const end = parseDateParam(endParam);
 
-  console.log("non start", startParam);
-  console.log("non end", startParam);
-
-  console.log("statrt", start);
-  console.log("end", end);
-
   return ok(await getRoster(prisma, start, end));
 }
